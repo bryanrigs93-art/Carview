@@ -1,4 +1,8 @@
-// Firebase v12: App + Auth + Firestore (CDN ESM)
+// ===============================
+// CarView · script.js (Firebase v12)
+// ===============================
+
+// --- Firebase (CDN ESM) ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
@@ -6,7 +10,7 @@ import {
   onSnapshot, serverTimestamp, query, orderBy
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// ⬇️ tu config
+// 👇 Usa tu config (la que te dio Firebase)
 const firebaseConfig = {
   apiKey: "AIzaSyAsbtZAiwAS1uDvJfQ9jbJLp2P9Z2LefUc",
   authDomain: "carview-proto.firebaseapp.com",
@@ -17,60 +21,33 @@ const firebaseConfig = {
   measurementId: "G-SRVQ66GBEF"
 };
 
+// Init
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// login anónimo (necesario para las reglas)
+// Login anónimo (necesario para reglas de Firestore)
 signInAnonymously(auth).catch(err => console.error("[Auth]", err));
 
-// cuando estemos logueados, arranca el resto de tu app (lo que ya te pasé)
-onAuthStateChanged(auth, user => {
-  if (!user) return;
-  // …aquí sigue tu código existente que:
-  // - hace onSnapshot(query(collection(db,'posts'), orderBy('createdAt','desc')))
-  // - usa addDoc/deleteDoc para crear/eliminar encuestas
-});
-
-
-/* =========================
-   Firebase (ESM desde CDN)
-   ========================= */
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
-import {
-  getFirestore, collection, addDoc, deleteDoc, doc,
-  onSnapshot, serverTimestamp, query, orderBy
-} from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
-
-/* 👉 Reemplaza con tu configuración de Firebase */
-const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-const postsCol   = collection(db, 'posts');
-const postsQuery = query(postsCol, orderBy('createdAt','desc'));
-
-/* =========================
-   App
-   ========================= */
+// Evitar doble inicialización si el HTML recarga el módulo dos veces por cache
 if (window.__carviewInit) {
-  // evita doble carga si se inserta el script más de una vez
+  // nada
 } else {
   window.__carviewInit = true;
 
+  onAuthStateChanged(auth, (user) => {
+    if (!user) return;         // esperamos a estar logueados
+    boot();                    // arranca la app
+  });
+}
+
+// ===============================
+// App
+// ===============================
+function boot(){
   const $  = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
   const escapeHTML = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-
-  const feedItems  = $('#feedItems');
-  const surveyForm = $('#surveyForm');
 
   /* ========= Toast ========= */
   function showToast(msg, ms=2200){
@@ -78,26 +55,30 @@ if (window.__carviewInit) {
     t.className = 'toast';
     t.textContent = msg;
     document.body.appendChild(t);
-    getComputedStyle(t).opacity;
+    getComputedStyle(t).opacity; // paint
     t.classList.add('show');
     setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(), 250); }, ms);
   }
 
-  /* ========= Flujo básico ========= */
+  /* ========= Flujo móvil: mostrar intro primero ========= */
   if (window.innerWidth <= 980) {
     document.getElementById('intro')?.scrollIntoView({behavior:'auto', block:'start'});
   }
+
+  /* ========= Mostrar prototipo al pulsar “Empezar” ========= */
   $('#startProto')?.addEventListener('click', () => {
-    $('#protoWrap')?.classList.remove('is-hidden-mobile');
-    $('#survey')?.classList.add('is-hidden-mobile');
+    $('#protoWrap')?.classList.remove('is-hidden-mobile');   // mostrar prototipo
+    $('#survey')?.classList.add('is-hidden-mobile');         // mantener encuesta oculta
     $('#iphone-home')?.scrollIntoView({ behavior:'smooth', block:'start', inline:'center' });
   });
+
+  /* ========= Botón “Comenzar encuesta” desde el prototipo ========= */
   $('#btnStartSurvey')?.addEventListener('click', () => {
     $('#survey')?.classList.remove('is-hidden-mobile');
     $('#survey')?.scrollIntoView({ behavior:'smooth', block:'start' });
   });
 
-  /* ========= Puntos verdes en cards ========= */
+  /* ========= Puntos verdes sobre fotos (indicador clic) ========= */
   $$('.card.js-open-detail .thumb').forEach(t=>{
     if (!t.querySelector('.hot-dot')) {
       const dot = document.createElement('span');
@@ -107,7 +88,7 @@ if (window.__carviewInit) {
     }
   });
 
-  /* ========= iPhone: detalle y Regresar (sin duplicados) ========= */
+  /* ========= iPhone Detalle ========= */
   const detailPhone = $('#iphone-detail');
   const backBtn     = $('#backBtn');
   const dImg   = $('#d-img');
@@ -118,6 +99,7 @@ if (window.__carviewInit) {
 
   function hideCoaches(){ ['coach1','coach2'].forEach(id=>{ const el = document.getElementById(id); if(el) el.style.display='none'; }); }
 
+  // Mejora visual del botón “Regresar”: sin duplicados
   if (backBtn) {
     backBtn.classList.add('proto-hot');
 
@@ -136,6 +118,7 @@ if (window.__carviewInit) {
       label.style.marginLeft = '6px';
       backBtn.appendChild(label);
     }
+
     backBtn.style.width = 'auto';
     backBtn.style.padding = '0 12px 0 10px';
     backBtn.style.display = 'flex';
@@ -164,19 +147,27 @@ if (window.__carviewInit) {
 
     detailPhone?.classList.remove('hidden');
     hideCoaches();
+
+    // mover vista al segundo iPhone
     setTimeout(()=>{ detailPhone?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'}); }, 60);
+
+    // quitar puntito verde al visitar
     card.querySelector('.hot-dot')?.remove();
   }
+
   function closeDetail(){
     detailPhone?.classList.add('hidden');
+    // volver visualmente al iPhone 1 (home)
     $('#iphone-home')?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
   }
+
   $$('.js-open-detail').forEach(c => c.addEventListener('click', ()=>openDetailFromCard(c)));
   backBtn?.addEventListener('click', closeDetail);
 
+  /* ========= Botones no implementados → Toast ========= */
   $$('.proto-disabled').forEach(el => el.addEventListener('click', ()=>showToast('Botón no disponible en prototipo de app')));
 
-  /* ========= IA: Comparar (demo) ========= */
+  /* ========= IA: Comparar (demo) con modo selección ========= */
   const btnCompare   = $('#btnCompare');
   const compareLabel = $('#compareLabel');
   const compareHint  = $('#compareHint');
@@ -184,6 +175,7 @@ if (window.__carviewInit) {
   function getSelectedCars(){
     return $$('.card .car-select:checked').map(cb => cb.closest('.card'));
   }
+
   function enterSelectionMode(){
     selectionMode = true;
     cardsGrid?.classList.add('selection-mode');
@@ -193,6 +185,7 @@ if (window.__carviewInit) {
     btnCompare?.setAttribute('disabled', 'true');
     showToast('Selecciona los autos que deseas comparar (marca 2).');
   }
+
   function exitSelectionMode(){
     selectionMode = false;
     cardsGrid?.classList.remove('selection-mode');
@@ -200,6 +193,7 @@ if (window.__carviewInit) {
     if(compareLabel) compareLabel.textContent = 'IA: Comparar (demo)';
     btnCompare?.removeAttribute('disabled');
   }
+
   function updateCompareUI(){
     const sel = getSelectedCars().length;
     if(selectionMode){
@@ -208,6 +202,7 @@ if (window.__carviewInit) {
       else{ btnCompare?.setAttribute('disabled','true'); }
     }
   }
+
   btnCompare?.addEventListener('click', ()=>{
     if(!selectionMode){ enterSelectionMode(); return; }
     const selected = getSelectedCars();
@@ -215,6 +210,8 @@ if (window.__carviewInit) {
     exitSelectionMode();
     showToast('Comparación demo generada.');
   });
+
+  // Evitar burbujeo del checkbox y actualizar contador
   $$('.select-box, .car-select').forEach(el=>{
     ['click','mousedown','touchstart'].forEach(evt=>{
       el.addEventListener(evt, ev=>ev.stopPropagation(), {passive:true});
@@ -223,11 +220,14 @@ if (window.__carviewInit) {
   $$('.car-select').forEach(cb => cb.addEventListener('change', updateCompareUI));
 
   /* ========= Encuesta + Foro — FIRESTORE REALTIME ========= */
+  const surveyForm   = $('#surveyForm');
+  const feedItems    = $('#feedItems');
+
   const likertLogo   = $('#logoScore');
   const logoHidden   = surveyForm?.elements['logo'];
   const likertEase   = $('#easeScore');
   const easeHidden   = surveyForm?.elements['ease'];
-  const help         = $('#helpScore');
+  const helpScoreEl  = $('#helpScore');
   const helpHidden   = surveyForm?.elements['help'];
 
   function bindLikert(container, hiddenInput){
@@ -240,7 +240,10 @@ if (window.__carviewInit) {
   }
   bindLikert(likertLogo, logoHidden);
   bindLikert(likertEase, easeHidden);
-  bindLikert(help, helpHidden);
+  bindLikert(helpScoreEl, helpHidden);
+
+  const postsCol   = collection(db, 'posts');
+  const postsQuery = query(postsCol, orderBy('createdAt','desc'));
 
   // Render helpers
   const createPostEl = (d) => {
@@ -280,27 +283,35 @@ if (window.__carviewInit) {
     arr.forEach(p => feedItems.appendChild(createPostEl(p)));
   };
 
-  // 🔔 suscripción en tiempo real: todos los dispositivos ven cambios al instante
-  onSnapshot(postsQuery, (snap) => {
-    const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderPosts(posts);
-  });
+  // 🔔 Suscripción en tiempo real
+  onSnapshot(
+    postsQuery,
+    (snap) => {
+      const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPosts(posts);
+    },
+    (err) => {
+      console.error('[onSnapshot] Error:', err);
+      showToast('No se pudo leer datos (revisa reglas de Firestore).');
+    }
+  );
 
   // Crear encuesta
-  async function appendPost(d){
+  async function savePost(d){
     await addDoc(postsCol, { ...d, createdAt: serverTimestamp() });
   }
 
   // Enviar formulario
   surveyForm?.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    if (!surveyForm.reportValidity()) return;
 
     const nombre      = surveyForm.elements['nombre'].value.trim();
     const recomendo   = surveyForm.elements['recomendo'].value;
     const atractivos  = [...surveyForm.querySelectorAll('input[name="atractivo"]:checked')].map(i=>i.value);
+
     const plan        = (surveyForm.elements['plan_import']?.value) || '';
     const premium     = (surveyForm.elements['pro_price']?.value) || '';
+
     const featuresAdd = [...surveyForm.querySelectorAll('input[name="featuresAdd"]:checked')].map(i=>i.value);
     const featuresExt = surveyForm.elements['features_otros'].value.trim();
     const logo        = surveyForm.elements['logo'].value;
@@ -313,18 +324,23 @@ if (window.__carviewInit) {
     if(atractivos.length===0){ showToast('Selecciona al menos un aspecto atractivo.'); return; }
     if(!surveyForm.elements['consent'].checked){ showToast('Debes aceptar participar para enviar.'); return; }
 
-    await appendPost({ nombre, recomendo, atractivos, plan, premium, featuresAdd, featuresExt, logo, ease: easeScore, help: helpScore, sugerencia });
+    try{
+      await savePost({ nombre, recomendo, atractivos, plan, premium, featuresAdd, featuresExt, logo, ease: easeScore, help: helpScore, sugerencia });
+      showToast('¡Gracias por su ayuda!');
+    }catch(err){
+      console.error('[addDoc] Error:', err);
+      showToast('No se pudo guardar (revisa Auth/Reglas).');
+      return;
+    }
 
-    showToast('¡Gracias por su ayuda!');
-
-    // Reset visual
+    // Reset visual (dejamos valores por defecto en likerts)
     surveyForm.reset();
     surveyForm.elements['logo'].value = '3';
-    $('#logoScore')?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+    likertLogo?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
     surveyForm.elements['ease'].value = '3';
-    $('#easeScore')?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+    likertEase?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
     surveyForm.elements['help'].value = '3';
-    $('#helpScore')?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+    helpScoreEl?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
   });
 
   // Eliminar encuesta (delegación)
@@ -334,11 +350,16 @@ if (window.__carviewInit) {
     const card = del.closest('.post');
     const id = card?.dataset.id;
     if (!id) return;
-    await deleteDoc(doc(db, 'posts', id));
-    showToast('Encuesta eliminada.');
+    try{
+      await deleteDoc(doc(db, 'posts', id));
+      showToast('Encuesta eliminada.');
+    }catch(err){
+      console.error('[deleteDoc] Error:', err);
+      showToast('No se pudo eliminar (revisa reglas).');
+    }
   });
 
-  // Asegurar bolita en “Comenzar encuesta”
+  /* ========= Asegurar bolita verde pulsante en “Comenzar encuesta” ========= */
   (function ensureStartSurveyDot(){
     const b = document.getElementById('btnStartSurvey');
     if (b && !b.querySelector('.hot-indicator')) {
@@ -349,3 +370,4 @@ if (window.__carviewInit) {
     }
   })();
 }
+
