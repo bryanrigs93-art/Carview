@@ -1,12 +1,41 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // Guardia anti doble-carga
-  if (window.__carviewInit) return;
+/* =========================
+   Firebase (ESM desde CDN)
+   ========================= */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
+import {
+  getFirestore, collection, addDoc, deleteDoc, doc,
+  onSnapshot, serverTimestamp, query, orderBy
+} from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js';
+
+/* 👉 Reemplaza con tu configuración de Firebase */
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  projectId: "TU_PROYECTO",
+  storageBucket: "TU_PROYECTO.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId: "TU_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const postsCol   = collection(db, 'posts');
+const postsQuery = query(postsCol, orderBy('createdAt','desc'));
+
+/* =========================
+   App
+   ========================= */
+if (window.__carviewInit) {
+  // evita doble carga si se inserta el script más de una vez
+} else {
   window.__carviewInit = true;
 
-  /* ========= Helpers ========= */
   const $  = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
   const escapeHTML = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  const feedItems  = $('#feedItems');
+  const surveyForm = $('#surveyForm');
 
   /* ========= Toast ========= */
   function showToast(msg, ms=2200){
@@ -14,30 +43,26 @@ document.addEventListener('DOMContentLoaded', () => {
     t.className = 'toast';
     t.textContent = msg;
     document.body.appendChild(t);
-    getComputedStyle(t).opacity; // paint
+    getComputedStyle(t).opacity;
     t.classList.add('show');
     setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(), 250); }, ms);
   }
 
-  /* ========= Flujo móvil: intro primero ========= */
+  /* ========= Flujo básico ========= */
   if (window.innerWidth <= 980) {
     document.getElementById('intro')?.scrollIntoView({behavior:'auto', block:'start'});
   }
-
-  /* ========= Mostrar prototipo al pulsar “Empezar” ========= */
   $('#startProto')?.addEventListener('click', () => {
     $('#protoWrap')?.classList.remove('is-hidden-mobile');
     $('#survey')?.classList.add('is-hidden-mobile');
     $('#iphone-home')?.scrollIntoView({ behavior:'smooth', block:'start', inline:'center' });
   });
-
-  /* ========= Botón “Comenzar encuesta” ========= */
   $('#btnStartSurvey')?.addEventListener('click', () => {
     $('#survey')?.classList.remove('is-hidden-mobile');
     $('#survey')?.scrollIntoView({ behavior:'smooth', block:'start' });
   });
 
-  /* ========= Puntos verdes sobre fotos ========= */
+  /* ========= Puntos verdes en cards ========= */
   $$('.card.js-open-detail .thumb').forEach(t=>{
     if (!t.querySelector('.hot-dot')) {
       const dot = document.createElement('span');
@@ -47,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* ========= iPhone Detalle ========= */
+  /* ========= iPhone: detalle y Regresar (sin duplicados) ========= */
   const detailPhone = $('#iphone-detail');
   const backBtn     = $('#backBtn');
   const dImg   = $('#d-img');
@@ -58,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function hideCoaches(){ ['coach1','coach2'].forEach(id=>{ const el = document.getElementById(id); if(el) el.style.display='none'; }); }
 
-  // Mejora visual del botón “Regresar” SOLO si falta (evita duplicados)
   if (backBtn) {
     backBtn.classList.add('proto-hot');
 
@@ -68,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
       dot.setAttribute('aria-hidden','true');
       backBtn.appendChild(dot);
     }
-
     if (!backBtn.querySelector('.back-label')) {
       const label = document.createElement('span');
       label.className = 'back-label';
@@ -78,8 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
       label.style.marginLeft = '6px';
       backBtn.appendChild(label);
     }
-
-    // layout
     backBtn.style.width = 'auto';
     backBtn.style.padding = '0 12px 0 10px';
     backBtn.style.display = 'flex';
@@ -108,29 +129,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     detailPhone?.classList.remove('hidden');
     hideCoaches();
-
-    // mover vista al segundo iPhone
     setTimeout(()=>{ detailPhone?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'}); }, 60);
-
-    // quitar puntito verde al visitar
     card.querySelector('.hot-dot')?.remove();
   }
-
   function closeDetail(){
     detailPhone?.classList.add('hidden');
     $('#iphone-home')?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
   }
-
   $$('.js-open-detail').forEach(c => c.addEventListener('click', ()=>openDetailFromCard(c)));
   backBtn?.addEventListener('click', closeDetail);
 
-  /* ========= Botones no implementados → Toast ========= */
   $$('.proto-disabled').forEach(el => el.addEventListener('click', ()=>showToast('Botón no disponible en prototipo de app')));
 
-  /* ========= Overlays helper ========= */
-  function closeOverlay(ov){ ov.classList.remove('open'); setTimeout(()=>ov.remove(), 200); }
-
-  /* ========= IA: Comparar (demo) con modo selección ========= */
+  /* ========= IA: Comparar (demo) ========= */
   const btnCompare   = $('#btnCompare');
   const compareLabel = $('#compareLabel');
   const compareHint  = $('#compareHint');
@@ -138,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function getSelectedCars(){
     return $$('.card .car-select:checked').map(cb => cb.closest('.card'));
   }
-
   function enterSelectionMode(){
     selectionMode = true;
     cardsGrid?.classList.add('selection-mode');
@@ -148,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCompare?.setAttribute('disabled', 'true');
     showToast('Selecciona los autos que deseas comparar (marca 2).');
   }
-
   function exitSelectionMode(){
     selectionMode = false;
     cardsGrid?.classList.remove('selection-mode');
@@ -156,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(compareLabel) compareLabel.textContent = 'IA: Comparar (demo)';
     btnCompare?.removeAttribute('disabled');
   }
-
   function updateCompareUI(){
     const sel = getSelectedCars().length;
     if(selectionMode){
@@ -165,23 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
       else{ btnCompare?.setAttribute('disabled','true'); }
     }
   }
-
   btnCompare?.addEventListener('click', ()=>{
     if(!selectionMode){ enterSelectionMode(); return; }
     const selected = getSelectedCars();
     if(selected.length < 2){ showToast('Selecciona al menos 2 autos para comparar.'); return; }
-    const pick = selected.slice(0,2).map(card => ({
-      id: card.dataset.id || '',
-      title: card.dataset.title || card.querySelector('h3')?.textContent || 'Auto',
-      price: card.dataset.price || card.querySelector('.price')?.textContent || '-',
-      km: card.dataset.km || '-',
-      img: (card.querySelector('.thumb img')||{}).src || ''
-    }));
     exitSelectionMode();
-    openAIModal(pick[0], pick[1]);
+    showToast('Comparación demo generada.');
   });
-
-  // Evitar burbujeo del checkbox y actualizar contador
   $$('.select-box, .car-select').forEach(el=>{
     ['click','mousedown','touchstart'].forEach(evt=>{
       el.addEventListener(evt, ev=>ev.stopPropagation(), {passive:true});
@@ -189,238 +187,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   $$('.car-select').forEach(cb => cb.addEventListener('change', updateCompareUI));
 
-  /* ========= Pista de scroll (btn hint en móviles) ========= */
-  function addScrollHint(container){
-    if(!container || window.innerWidth > 980) return;
-    const need = container.scrollHeight > container.clientHeight + 8;
-    if(!need) return;
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.setAttribute('aria-label','Desliza hacia abajo');
-    Object.assign(btn.style, {
-      position: 'absolute',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      bottom: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      background: 'rgba(255,255,255,.95)',
-      border: '1px solid #e1e4ea',
-      borderRadius: '999px',
-      padding: '8px 12px',
-      fontWeight: '800',
-      fontSize: '.9rem',
-      color: '#334155',
-      boxShadow: '0 6px 16px rgba(0,0,0,.12)',
-      zIndex: '5',
-    });
-    const chev = document.createElement('span');
-    Object.assign(chev.style, {
-      width:'14px', height:'14px',
-      border: '3px solid currentColor',
-      borderLeftColor: 'transparent',
-      borderTopColor: 'transparent',
-      transform: 'rotate(45deg)',
-      opacity: '.9',
-      display: 'inline-block',
-      marginTop: '2px',
-      animation: 'downNudge 1.2s ease-in-out infinite'
-    });
-    const styleTag = document.createElement('style');
-    styleTag.textContent = `
-      @keyframes downNudge{
-        0%{ transform:rotate(45deg) translateY(0) }
-        50%{ transform:rotate(45deg) translateY(6px) }
-        100%{ transform:rotate(45deg) translateY(0) }
-      }
-    `;
-    document.head.appendChild(styleTag);
-
-    const text = document.createElement('span');
-    text.textContent = 'Desliza hacia abajo';
-
-    btn.appendChild(chev); btn.appendChild(text);
-    container.appendChild(btn);
-
-    const hide = () => { btn.remove(); container.removeEventListener('scroll', hide); };
-    container.addEventListener('scroll', hide, {passive:true});
-    setTimeout(hide, 6000);
-
-    btn.addEventListener('click', ()=>{
-      container.scrollBy({top: Math.min(240, container.scrollHeight), behavior:'smooth'});
-    });
-  }
-
-  /* ========= Modal IA (demo) ========= */
-  function openAIModal(a, b){
-    function bulletsFor(car){
-      const pros=[], cons=[];
-      if(/Corolla/i.test(car.title)){ pros.push('Alta confiabilidad y buena reventa','Costos de mantenimiento contenidos'); cons.push('Precio de entrada mayor'); }
-      if(/Elantra/i.test(car.title)){ pros.push('Precio más accesible; equipamiento competitivo'); cons.push('Depreciación más pronunciada'); if(/145,?000|145000|km/i.test(car.km)) cons.push('Kilometraje alto detectado (~145,000 km)'); }
-      return {pros, cons};
-    }
-    const A = bulletsFor(a), B = bulletsFor(b);
-    let reco = /Corolla/i.test(a.title) ? a.title : b.title;
-
-    const ov = document.createElement('div');
-    ov.className = 'ov';
-    ov.innerHTML = `
-      <div class="card-lg">
-        <header>
-          <span class="pill">IA (demo)</span>
-          <button class="x" aria-label="Cerrar">✕</button>
-        </header>
-        <h3>Comparación seleccionada</h3>
-        <p class="muted">Generado a partir de los autos marcados con checkbox en el prototipo.</p>
-
-        <div class="ai-grid">
-          <div class="ai-col">
-            <h4>🚗 ${escapeHTML(a.title)} — <b>${escapeHTML(a.price)}</b></h4>
-            <ul>${A.pros.map(p=>`<li><b>Pro:</b> ${escapeHTML(p)}</li>`).join('')}
-                ${A.cons.map(c=>`<li><b>Con:</b> ${escapeHTML(c)}</li>`).join('')}</ul>
-          </div>
-          <div class="ai-col">
-            <h4>🚗 ${escapeHTML(b.title)} — <b>${escapeHTML(b.price)}</b></h4>
-            <ul>${B.pros.map(p=>`<li><b>Pro:</b> ${escapeHTML(p)}</li>`).join('')}
-                ${B.cons.map(c=>`<li><b>Con:</b> ${escapeHTML(c)}</li>`).join('')}</ul>
-          </div>
-        </div>
-
-        <div class="ai-reco">🔎 <b>Recomendación:</b> <b>${escapeHTML(reco)}</b> se perfila como la opción más segura según el análisis de ejemplo.</div>
-
-        <div class="ai-cta-row">
-          <button class="btn pro pulsing proto-hot" id="btnPro">
-            <span class="hot-indicator" aria-hidden="true"></span>
-            Ver detalles de la versión Pro
-          </button>
-          <button class="btn outline" id="btnClose">Cerrar</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(ov);
-    requestAnimationFrame(()=>ov.classList.add('open'));
-
-    // Pista de scroll en móviles
-    addScrollHint(ov.querySelector('.card-lg'));
-
-    ov.addEventListener('click', e => { if(e.target === ov) closeOverlay(ov); });
-    ov.querySelector('.x')?.addEventListener('click', ()=>closeOverlay(ov));
-    ov.querySelector('#btnClose')?.addEventListener('click', ()=>closeOverlay(ov));
-    ov.querySelector('#btnPro')?.addEventListener('click', ()=>{ closeOverlay(ov); openProModal(); });
-  }
-
-  /* ========= Versión Pro (demo) ========= */
-  function openProModal(){
-    const ov = document.createElement('div');
-    ov.className = 'ov';
-    ov.innerHTML = `
-      <div class="card-lg">
-        <header>
-          <span class="pill">Versión Pro (demo)</span>
-          <button class="x" aria-label="Cerrar">✕</button>
-        </header>
-        <h3>Suscripción mensual Pro – Asesoría y red de servicios</h3>
-        <p class="muted">Ejemplo de beneficios al lanzar la app.</p>
-        <ul>
-          <li>📍 <b>Network tipo Uber</b> de profesionales verificados: sugerimos los <b>más cercanos</b> y con mejor <b>rating</b>.</li>
-          <li>👨‍💼 <b>Asesor experto humano</b> para compra y <b>trámites</b>.</li>
-          <li>🔧 Acceso a <b>talleres aliados</b> de nuestra red.</li>
-          <li>🪝 <b>Servicio de grúa</b> 24/7 por emergencias.</li>
-          <li>🧰 <b>Mecánicos de emergencia</b> a domicilio con <b>tarifas preferenciales</b>.</li>
-          <li>💬 Soporte prioritario en chat.</li>
-        </ul>
-        <div class="ai-reco">💡 Precio de ejemplo: <b>$9.99/mes</b>. Cancela cuando quieras.</div>
-        <div class="ai-cta-row">
-          <button class="btn brand" id="btnStartPro">Probar Pro (demo)</button>
-          <button class="btn outline" id="btnClosePro">Cerrar</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(ov);
-    requestAnimationFrame(()=>ov.classList.add('open'));
-
-    // Pista de scroll en móviles
-    addScrollHint(ov.querySelector('.card-lg'));
-
-    ov.addEventListener('click', e => { if(e.target === ov) closeOverlay(ov); });
-    ov.querySelector('.x')?.addEventListener('click', ()=>closeOverlay(ov));
-    ov.querySelector('#btnClosePro')?.addEventListener('click', ()=>closeOverlay(ov));
-    ov.querySelector('#btnStartPro')?.addEventListener('click', ()=>showToast('Alta Pro (prototipo)…'));
-  }
-
-  /* ========= Historial del vehículo (demo) ========= */
-  $('#btnHistory')?.addEventListener('click', openHistoryModal);
-
-  function openHistoryModal(){
-    const title = $('#d-title')?.textContent || 'Vehículo';
-    const km    = $('#d-km')?.textContent || '—';
-    const ov = document.createElement('div');
-    ov.className = 'ov';
-    ov.innerHTML = `
-      <div class="card-lg">
-        <header>
-          <span class="pill">Historial (demo)</span>
-          <button class="x" aria-label="Cerrar">✕</button>
-        </header>
-        <h3>${escapeHTML(title)} — Historial resumido</h3>
-        <p class="muted">Datos ficticios para el prototipo · Kilometraje reportado: <b>${escapeHTML(km)}</b></p>
-
-        <div class="ai-grid">
-          <div class="ai-col">
-            <h4>🧾 Resumen</h4>
-            <ul>
-              <li>Dueños registrados: <b>2</b></li>
-              <li>Estado legal: <b>sin reporte de robo</b></li>
-              <li>Uso anterior: <b>particular</b></li>
-              <li>ITV/inspecciones: <b>al día</b></li>
-            </ul>
-          </div>
-          <div class="ai-col">
-            <h4>🛠️ Mantenimientos</h4>
-            <ul>
-              <li>2023-09: Cambio de frenos y balanceo</li>
-              <li>2022-12: Cambio de batería</li>
-              <li>2022-06: Servicio mayor (aceite, filtros, bujías)</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="ai-reco">ℹ️ <b>Nota:</b> Verifica facturas y que el VIN coincida con documentos físicos antes de comprar.</div>
-
-        <div class="ai-cta-row">
-          <button class="btn brand" id="btnHistoryClose">Cerrar</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(ov);
-    requestAnimationFrame(()=>ov.classList.add('open'));
-
-    // Pista de scroll en móviles
-    addScrollHint(ov.querySelector('.card-lg'));
-
-    ov.addEventListener('click', e => { if(e.target === ov) closeOverlay(ov); });
-    ov.querySelector('.x')?.addEventListener('click', ()=>closeOverlay(ov));
-    ov.querySelector('#btnHistoryClose')?.addEventListener('click', ()=>closeOverlay(ov));
-  }
-
-  /* ========= Encuesta + Foro (con persistencia) ========= */
-  const surveyForm   = $('#surveyForm');
+  /* ========= Encuesta + Foro — FIRESTORE REALTIME ========= */
   const likertLogo   = $('#logoScore');
   const logoHidden   = surveyForm?.elements['logo'];
   const likertEase   = $('#easeScore');
   const easeHidden   = surveyForm?.elements['ease'];
   const help         = $('#helpScore');
   const helpHidden   = surveyForm?.elements['help'];
-  const feedItems    = $('#feedItems');
 
-  // ---- Persistencia ----
-  const STORAGE_KEY = 'carview_survey_posts_v1';
-  const loadPosts = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } };
-  const savePosts = (arr) => localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  let posts = loadPosts();
+  function bindLikert(container, hiddenInput){
+    container?.addEventListener('click', e=>{
+      const b = e.target.closest('button[data-v]'); if(!b) return;
+      if(hiddenInput) hiddenInput.value = b.dataset.v;
+      container.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  }
+  bindLikert(likertLogo, logoHidden);
+  bindLikert(likertEase, easeHidden);
+  bindLikert(help, helpHidden);
 
+  // Render helpers
   const createPostEl = (d) => {
     const div = document.createElement('div');
     div.className = 'post';
@@ -455,34 +242,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderPosts = (arr) => {
     if (!feedItems) return;
     feedItems.innerHTML = '';
-    arr.slice().reverse().forEach(p => feedItems.appendChild(createPostEl(p)));
+    arr.forEach(p => feedItems.appendChild(createPostEl(p)));
   };
 
-  renderPosts(posts); // dibuja lo guardado al cargar
+  // 🔔 suscripción en tiempo real: todos los dispositivos ven cambios al instante
+  onSnapshot(postsQuery, (snap) => {
+    const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderPosts(posts);
+  });
 
-  function bindLikert(container, hiddenInput){
-    container?.addEventListener('click', e=>{
-      const b = e.target.closest('button[data-v]'); if(!b) return;
-      if(hiddenInput) hiddenInput.value = b.dataset.v;
-      container.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-    });
+  // Crear encuesta
+  async function appendPost(d){
+    await addDoc(postsCol, { ...d, createdAt: serverTimestamp() });
   }
-  bindLikert(likertLogo, logoHidden);
-  bindLikert(likertEase, easeHidden);
-  bindLikert(help, helpHidden);
 
-  surveyForm?.addEventListener('submit', e=>{
+  // Enviar formulario
+  surveyForm?.addEventListener('submit', async (e)=>{
     e.preventDefault();
-
-    // Validación nativa
     if (!surveyForm.reportValidity()) return;
 
     const nombre      = surveyForm.elements['nombre'].value.trim();
     const recomendo   = surveyForm.elements['recomendo'].value;
     const atractivos  = [...surveyForm.querySelectorAll('input[name="atractivo"]:checked')].map(i=>i.value);
     const plan        = (surveyForm.elements['plan_import']?.value) || '';
-    const premium     = (surveyForm.elements['pro_price']?.value) || (surveyForm.elements['premium']?.value) || '';
+    const premium     = (surveyForm.elements['pro_price']?.value) || '';
     const featuresAdd = [...surveyForm.querySelectorAll('input[name="featuresAdd"]:checked')].map(i=>i.value);
     const featuresExt = surveyForm.elements['features_otros'].value.trim();
     const logo        = surveyForm.elements['logo'].value;
@@ -495,44 +278,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if(atractivos.length===0){ showToast('Selecciona al menos un aspecto atractivo.'); return; }
     if(!surveyForm.elements['consent'].checked){ showToast('Debes aceptar participar para enviar.'); return; }
 
-    appendPost({ nombre, recomendo, atractivos, plan, premium, featuresAdd, featuresExt, logo, ease: easeScore, help: helpScore, sugerencia });
+    await appendPost({ nombre, recomendo, atractivos, plan, premium, featuresAdd, featuresExt, logo, ease: easeScore, help: helpScore, sugerencia });
 
-    // ✅ mensaje corregido:
     showToast('¡Gracias por su ayuda!');
 
     // Reset visual
     surveyForm.reset();
-    if(logoHidden) logoHidden.value = '3';
-    likertLogo?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
-    if(easeHidden) easeHidden.value = '3';
-    likertEase?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
-    if(helpHidden) helpHidden.value = '3';
-    help?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+    surveyForm.elements['logo'].value = '3';
+    $('#logoScore')?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+    surveyForm.elements['ease'].value = '3';
+    $('#easeScore')?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+    surveyForm.elements['help'].value = '3';
+    $('#helpScore')?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
   });
 
-  function appendPost(d){
-    const id = Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-    const entry = { id, ...d };
-    posts.push(entry);
-    savePosts(posts);
-    if (feedItems) feedItems.prepend(createPostEl(entry));
-  }
-
-  // Delegación: botón "Eliminar" en cada post
-  feedItems?.addEventListener('click', (e) => {
+  // Eliminar encuesta (delegación)
+  feedItems?.addEventListener('click', async (e) => {
     const del = e.target.closest('.post-delete');
     if (!del) return;
     const card = del.closest('.post');
     const id = card?.dataset.id;
     if (!id) return;
-
-    posts = posts.filter(p => p.id !== id);
-    savePosts(posts);
-    card.remove();
+    await deleteDoc(doc(db, 'posts', id));
     showToast('Encuesta eliminada.');
   });
 
-  /* ========= Asegurar bolita verde en “Comenzar encuesta” ========= */
+  // Asegurar bolita en “Comenzar encuesta”
   (function ensureStartSurveyDot(){
     const b = document.getElementById('btnStartSurvey');
     if (b && !b.querySelector('.hot-indicator')) {
@@ -542,4 +313,4 @@ document.addEventListener('DOMContentLoaded', () => {
       b.appendChild(dot);
     }
   })();
-});
+}
