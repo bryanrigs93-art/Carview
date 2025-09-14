@@ -5,48 +5,197 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CarView · Prototipo</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-<div class="stage">
-  <!-- ===== Intro (siempre primero en móvil) ===== -->
-  <aside class="survey-intro" id="intro">
-    <header class="survey-header">
-      <h3>ENCUESTA SOBRE DISEÑO DE APP: CARVIEW · PROYECTO UNIVERSITARIO</h3>
-      <p class="subhead">Carrera: <b>Business Technology Management</b> · Materia: <b>Digital Product Design and Development</b></p>
-      <p class="raffle">Agradecemos tu ayuda y tiempo para evaluar nuestro proyecto de diseño de aplicación</p>
-      <div class="instructions">
-        <div class="inst-left">
-          <h4>Instrucciones</h4>
-          <p><b>Compra tu primer auto importado con confianza.</b> Reunimos historial real de autos, precios y señales de riesgo para comprar seguro con IA. <br><br>
-            <b>Toca / haz click</b> en opciones con <b>punto verde</b> pulsante.</p>
-          <p class="mini-note">Los demás mostrarán “no disponible en prototipo”.</p>
+  <div class="stage">
+    <!-- ===== Intro (siempre primero en móvil) ===== -->
+    <aside class="survey-intro" id="intro">
+      <header class="survey-header">
+        <h3>ENCUESTA SOBRE DISEÑO DE APP: CARVIEW · PROYECTO UNIVERSITARIO</h3>
+        <p class="subhead">Carrera: <b>Business Technology Management</b> · Materia: <b>Digital Product Design and Development</b></p>
+        <p class="raffle">Agradecemos tu ayuda y tiempo para evaluar nuestro proyecto de diseño de aplicación</p>
+
+        <div class="instructions">
+          <div class="inst-left">
+            <h4>Instrucciones</h4>
+            <p>
+              <b>Compra tu primer auto importado con confianza</b>. Reunimos historial real de autos, precios y señales de riesgo para que
+              compares y compres seguro y con asesoría de nuestra IA. Con Pro, sumas asesoría humana y más.
+              <br><br><b>Toca / haz click</b> en opciones con <b>punto verde</b> pulsante.
+            </p>
+            <p class="mini-note">Los demás mostrarán “no disponible en prototipo”.</p>
+          </div>
+          <div class="inst-right">
+            <div class="hot-example" aria-hidden="true"></div>
+            <span class="inst-label">Ejemplo</span>
+          </div>
         </div>
-        <div class="inst-right">
-          <div class="hot-example" aria-hidden="true"></div>
-          <span class="inst-label">Ejemplo</span>
+      </header>
+
+      <div class="intro-actions">
+        <button id="startProto" class="intro-start proto-hot">
+          <span class="hot-indicator" aria-hidden="true"></span>
+          Empezar
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== Prototipo (dos iPhones) — oculto en móvil hasta “Empezar” ===== -->
+    <div class="proto-wrap is-hidden-mobile" id="protoWrap">
+      <!-- iPhone HOME (izquierda) -->
+      <div class="left-wrap">
+        <!-- Coaches -->
+        <div class="coach coach-1" id="coach1" aria-hidden="true"><div class="coach-arrow"></div></div>
+        <div class="coach coach-2" id="coach2" aria-hidden="true">
+          <div class="coach-bubble">Click en el auto de tu interés</div>
+          <div class="coach-arrow"></div>
+        </div>
+
+        <div class="iphone" id="iphone-home">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="statusbar">
+              <span>9:41</span>
+              <div class="status-icons"><span class="ic">◬</span><span class="ic">▮▮▮▮</span><span class="ic">🔋</span></div>
+            </div>
+
+            <div class="app app-home">
+              <!-- Appbar -->
+              <div class="appbar">
+                <h1>Inicio</h1>
+                <button class="icon-btn proto-disabled" aria-label="search">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" fill="none" stroke-width="2"/>
+                    <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- HERO -->
+              <section class="hero-card">
+                <div class="hero-head">
+                  <img id="carview-logo" src="https://raw.githubusercontent.com/bryanrigs93-art/Carview-/main/Logocarview.png" alt="CarView">
+                  <button class="cta-hero proto-disabled">Encuesta digital (Prototipo App)</button>
+                </div>
+                <h2>Compra segura de<br>autos usados</h2>
+              </section>
+
+              <!-- Cards -->
+              <section class="cards" id="cards">
+                <!-- Corolla -->
+                <article class="card js-open-detail"
+                         data-id="corolla2020"
+                         data-title="Toyota Corolla 2020"
+                         data-price="$17,500"
+                         data-location="San Salvador"
+                         data-km="500 km">
+                  <div class="thumb">
+                    <img src="https://raw.githubusercontent.com/bryanrigs93-art/Carview-/main/2020-Toyota-Corolla-Sedan-launched-in-Australia_Exterior-9.jpg" alt="Toyota Corolla 2020">
+                    <label class="select-box" title="Seleccionar para comparar">
+                      <input type="checkbox" class="car-select">
+                    </label>
+                  </div>
+                  <div class="card-body">
+                    <h3>Toyota Corolla 2020</h3>
+                    <p class="price">$17,500</p>
+                    <p class="place">San Salvador</p>
+                  </div>
+                </article>
+
+                <!-- Elantra -->
+                <article class="card js-open-detail"
+                         data-id="elantra2018"
+                         data-title="Hyundai Elantra 2018"
+                         data-price="$13,200"
+                         data-location="San Salvador"
+                         data-km="145,000 km">
+                  <div class="thumb">
+                    <img src="https://raw.githubusercontent.com/bryanrigs93-art/Carview-/main/hyunday%20elantra.avif" alt="Hyundai Elantra 2018">
+                    <label class="select-box" title="Seleccionar para comparar">
+                      <input type="checkbox" class="car-select">
+                    </label>
+                  </div>
+                  <div class="card-body">
+                    <h3>Hyundai Elantra 2018</h3>
+                    <p class="price">$13,200</p>
+                    <p class="place">San Salvador</p>
+                  </div>
+                </article>
+              </section>
+
+              <!-- CTA IA -->
+              <section class="ai-cta">
+                <button class="ai-btn proto-hot" id="btnCompare" aria-live="polite">
+                  <span class="hot-indicator" aria-hidden="true"></span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M10 8h10M4 16h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span id="compareLabel">IA: Comparar (demo)</span>
+                </button>
+                <div class="hint" id="compareHint" aria-live="polite" hidden></div>
+              </section>
+
+              <!-- Ir a encuesta -->
+              <section class="start-survey">
+                <button id="btnStartSurvey" class="intro-start proto-hot">
+                  <span class="hot-indicator" aria-hidden="true"></span>
+                  Comenzar encuesta
+                </button>
+              </section>
+
+              <!-- Acciones grandes (demo) -->
+              <section class="quick-actions">
+                <button class="qa verify proto-disabled">
+                  <div class="qa-left">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6l-11 11-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Verificados</span>
+                  </div>
+                  <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </button>
+
+                <button class="qa history proto-disabled">
+                  <div class="qa-left">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM6 8h12M10 12h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Historial</span>
+                  </div>
+                  <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </button>
+
+                <button class="qa compare proto-disabled">
+                  <div class="qa-left">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 7h7M4 17h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    <span>Comparar</span>
+                  </div>
+                  <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+                </button>
+              </section>
+
+              <!-- Tabbar (demo) -->
+              <nav class="tabbar">
+                <button class="active proto-disabled">
+                  <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a 1 1 0 0 1-1-1z" fill="currentColor"/></svg>
+                  <span>Inicio</span>
+                </button>
+                <button class="proto-disabled">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="currentColor"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span>Buscar</span>
+                </button>
+                <button class="proto-disabled">
+                  <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  <span>Publicar</span>
+                </button>
+                <button class="proto-disabled">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                  <span>Perfil</span>
+                </button>
+              </nav>
+            </div>
+          </div>
+          <div class="iphone-homebar"></div>
         </div>
       </div>
-    </header>
 
-    <div class="intro-actions">
-      <button id="startProto" class="intro-start proto-hot">
-        <span class="hot-indicator" aria-hidden="true"></span>
-        Empezar
-      </button>
-    </div>
-  </aside>
-
-  <!-- ===== Prototipo (dos iPhones) ===== -->
-  <div class="proto-wrap is-hidden-mobile" id="protoWrap">
-    <!-- iPhone HOME -->
-    <div class="left-wrap">
-      <div class="coach coach-1" id="coach1" aria-hidden="true"><div class="coach-arrow"></div></div>
-      <div class="coach coach-2" id="coach2" aria-hidden="true">
-        <div class="coach-bubble">Click en el auto de tu interés</div>
-        <div class="coach-arrow"></div>
-      </div>
-
-      <div class="iphone" id="iphone-home">
+      <!-- iPhone DETALLE (derecha) -->
+      <div class="iphone detail hidden" id="iphone-detail">
         <div class="iphone-notch"></div>
         <div class="iphone-screen">
           <div class="statusbar">
@@ -54,358 +203,228 @@
             <div class="status-icons"><span class="ic">◬</span><span class="ic">▮▮▮▮</span><span class="ic">🔋</span></div>
           </div>
 
-          <div class="app app-home">
-            <div class="appbar">
-              <h1>Inicio</h1>
-              <button class="icon-btn proto-disabled" aria-label="search">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" stroke="currentColor" fill="none" stroke-width="2"/>
-                  <line x1="16.5" y1="16.5" x2="22" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
+          <button class="back-fab" id="backBtn" aria-label="Regresar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19 8 12l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          </button>
+
+          <div class="app app-detail">
+            <div class="detail-hero">
+              <img id="d-img" src="" alt="Foto vehículo">
+              <button class="photos-btn proto-disabled" aria-label="Ver más fotos">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l2-2h4l2 2h4v10H4z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" fill="currentColor"/></svg>
+                <span>Ver más fotos</span>
               </button>
             </div>
 
-            <section class="hero-card">
-              <div class="hero-head">
-                <img id="carview-logo" src="https://raw.githubusercontent.com/bryanrigs93-art/Carview-/main/Logocarview.png" alt="CarView">
-                <button class="cta-hero proto-disabled">Encuesta digital (Prototipo App)</button>
-              </div>
-              <h2>Compra segura de<br>autos usados</h2>
-            </section>
+            <div class="row between center">
+              <h1 class="title" id="d-title">—</h1>
+              <span class="badge">Verificado</span>
+            </div>
 
-            <section class="cards" id="cards">
-              <!-- Corolla -->
-              <article class="card js-open-detail"
-                       data-id="corolla2020"
-                       data-title="Toyota Corolla 2020"
-                       data-price="$17,500"
-                       data-location="San Salvador"
-                       data-km="500 km">
-                <div class="thumb">
-                  <img src="https://raw.githubusercontent.com/bryanrigs93-art/Carview-/main/2020-Toyota-Corolla-Sedan-launched-in-Australia_Exterior-9.jpg" alt="Toyota Corolla 2020">
-                  <label class="select-box" title="Seleccionar para comparar">
-                    <input type="checkbox" class="car-select">
-                  </label>
-                </div>
-                <div class="card-body">
-                  <h3>Toyota Corolla 2020</h3>
-                  <p class="price">$17,500</p>
-                  <p class="place">San Salvador</p>
-                </div>
-              </article>
+            <div class="meta"><span class="price" id="d-price">—</span><span class="dot"></span><span id="d-location">—</span></div>
+            <div class="meta"><span class="dot"></span><span id="d-km">—</span></div>
 
-              <!-- Elantra -->
-              <article class="card js-open-detail"
-                       data-id="elantra2018"
-                       data-title="Hyundai Elantra 2018"
-                       data-price="$13,200"
-                       data-location="San Salvador"
-                       data-km="145,000 km">
-                <div class="thumb">
-                  <img src="https://raw.githubusercontent.com/bryanrigs93-art/Carview-/main/hyunday%20elantra.avif" alt="Hyundai Elantra 2018">
-                  <label class="select-box" title="Seleccionar para comparar">
-                    <input type="checkbox" class="car-select">
-                  </label>
-                </div>
-                <div class="card-body">
-                  <h3>Hyundai Elantra 2018</h3>
-                  <p class="price">$13,200</p>
-                  <p class="place">San Salvador</p>
-                </div>
-              </article>
-            </section>
+            <div class="list">
+              <button class="list-item proto-disabled"><span>Filtros avanzados</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
 
-            <section class="ai-cta">
-              <button class="ai-btn proto-hot" id="btnCompare" aria-live="polite">
+              <button class="list-item proto-hot" id="btnHistory">
                 <span class="hot-indicator" aria-hidden="true"></span>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M10 8h10M4 16h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span id="compareLabel">IA: Comparar (demo)</span>
-              </button>
-              <div class="hint" id="compareHint" aria-live="polite" hidden></div>
-            </section>
-
-            <section class="start-survey">
-              <button id="btnStartSurvey" class="intro-start proto-hot">
-                <span class="hot-indicator" aria-hidden="true"></span>
-                Comenzar encuesta
-              </button>
-            </section>
-
-            <section class="quick-actions">
-              <button class="qa verify proto-disabled">
-                <div class="qa-left">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6l-11 11-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Verificados</span>
-                </div>
+                <span>Historial del vehículo</span>
                 <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
               </button>
 
-              <button class="qa history proto-disabled">
-                <div class="qa-left">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM6 8h12M10 12h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <span>Historial</span>
-                </div>
-                <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-              </button>
+              <button class="list-item proto-disabled"><span>Sello de verificación</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+            </div>
 
-              <button class="qa compare proto-disabled">
-                <div class="qa-left">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 7h7M4 17h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                  <span>Comparar</span>
-                </div>
-                <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-              </button>
-            </section>
-
-            <nav class="tabbar">
-              <button class="active proto-disabled">
-                <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>
-                <span>Inicio</span>
-              </button>
-              <button class="proto-disabled">
-                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="currentColor"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span>Buscar</span>
-              </button>
-              <button class="proto-disabled">
-                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <span>Publicar</span>
-              </button>
-              <button class="proto-disabled">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-                <span>Perfil</span>
-              </button>
-            </nav>
+            <button class="cta proto-disabled"> Iniciar proceso de compra (Prototipo App)</button>
           </div>
         </div>
         <div class="iphone-homebar"></div>
       </div>
-    </div>
+    </div><!-- /protoWrap -->
 
-    <!-- iPhone DETALLE -->
-    <div class="iphone detail hidden" id="iphone-detail">
-      <div class="iphone-notch"></div>
-      <div class="iphone-screen">
-        <div class="statusbar">
-          <span>9:41</span>
-          <div class="status-icons"><span class="ic">◬</span><span class="ic">▮▮▮▮</span><span class="ic">🔋</span></div>
+    <!-- ===== Encuesta (oculta en móvil hasta “Comenzar encuesta”) ===== -->
+    <aside class="survey-panel is-hidden-mobile" id="survey">
+      <header class="survey-header">
+        <div class="contact-note">
+          📢 <b>Nota:</b> Para quienes van o fueron por un auto importado: si esta app te habría ayudado, ¡dínoslo en la encuesta!
         </div>
+      </header>
 
-        <button class="back-fab" id="backBtn" aria-label="Regresar">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19 8 12l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
-        </button>
+      <form id="surveyForm">
+        <label class="q">
+          <span class="q-title">Tu nombre</span>
+          <input type="text" name="nombre" placeholder="Escribe tu nombre" required>
+        </label>
 
-        <div class="app app-detail">
-          <div class="detail-hero">
-            <img id="d-img" src="" alt="Foto vehículo">
-            <button class="photos-btn proto-disabled" aria-label="Ver más fotos">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h4l2-2h4l2 2h4v10H4z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" fill="currentColor"/></svg>
-              <span>Ver más fotos</span>
-            </button>
+        <label class="q">
+          <span class="q-title">¿Quién te recomendó esta encuesta?</span>
+          <select name="recomendo" required>
+            <option value="" disabled selected>Selecciona una opción</option>
+            <option>Alvaro Martinez</option>
+            <option>Bryan Bodegas</option>
+            <option>Cristian Alexander Hernandez</option>
+            <option>Cristian Melara</option>
+          </select>
+        </label>
+
+        <label class="q">
+          <span class="q-title">¿Qué te parece más atractivo de esta visión prototipo de la app?</span>
+          <div class="chips-select">
+            <label><input type="checkbox" name="atractivo" value="Diseño/estética">Diseño/estética</label>
+            <label><input type="checkbox" name="atractivo" value="Verificación y seguridad">Verificación y seguridad</label>
+            <label><input type="checkbox" name="atractivo" value="Comparador de precios">Comparador de precios</label>
+            <label><input type="checkbox" name="atractivo" value="Historial del vehículo">Historial del vehículo</label>
+            <label><input type="checkbox" name="atractivo" value="Facilidad de uso">Facilidad de uso</label>
           </div>
+        </label>
 
-          <div class="row between center">
-            <h1 class="title" id="d-title">—</h1>
-            <span class="badge">Verificado</span>
+        <!-- A) Elección de plan -->
+        <label class="q q-planes">
+          <span class="q-title">A) Si tuvieras planes de importar un auto, ¿Qué plan elegirías hoy para Carview?</span>
+          <div class="plan-grid">
+            <!-- GRATIS -->
+            <label class="plan-card">
+              <input type="radio" name="plan_import" value="free" required>
+              <div class="plan-head">
+                <span class="plan-name">Gratis</span>
+                <span class="pill muted">con anuncios</span>
+              </div>
+              <div class="plan-price">$0</div>
+              <ul class="features">
+                <li><span class="b">📸</span><span>Hasta <b>3 comparaciones básicas por IA/día</b> (60–75/mes)</span></li>
+                <li><span class="b">⚠️</span><span><b>Historial ilimitado</b> con <b>detalles básicos</b></span></li>
+              </ul>
+            </label>
+
+            <!-- PLUS -->
+            <label class="plan-card">
+              <input type="radio" name="plan_import" value="plus" required>
+              <div class="plan-head">
+                <span class="plan-name">Plus</span>
+                <span class="pill">Sin anuncios</span>
+              </div>
+              <div class="plan-price">$4.99–$6.99/mes</div>
+              <ul class="features">
+                <li><span class="b">📸</span><span><b>100 comparaciones</b> y <b>guía avanzada por IA/mes</b></span></li>
+                <li><span class="b">🔔</span><span><b>Alertas de bajada en precio ilimitadas</b></span></li>
+                <li><span class="b">📑</span><span><b>Historial más a detalle</b></span></li>
+                <li><span class="b">⭐</span><span><b>Favoritos básico</b></span></li>
+                <li><span class="b">🧾</span><span><b>Cupones</b> en talleres asociados</span></li>
+              </ul>
+            </label>
+
+            <!-- PRO -->
+            <label class="plan-card plan-pro">
+              <input type="radio" name="plan_import" value="pro" required>
+              <div class="plan-head">
+                <span class="plan-name">Pro</span>
+                <span class="pill brand">Sin anuncios (seguridad extra)</span>
+              </div>
+              <div class="plan-price">$9.99–$12.99/mes</div>
+              <div class="plan-sub">TODO LO ANTERIOR Y MÁS:</div>
+              <ul class="features">
+                <li><span class="b">📸</span><span><b>300 comparaciones IA/mes</b></span></li>
+                <li><span class="b">👨‍💼</span><span><b>Asesor humano profesional</b> con tarifas preferenciales</span></li>
+                <li><span class="b">💬</span><span><b>Chat prioritario</b></span></li>
+                <li><span class="b">🕘</span><span><b>Red 24/7</b> de apoyo</span></li>
+                <li><span class="b">🔧</span><span><b>Talleres certificados</b> con precios preferenciales</span></li>
+                <li><span class="b">🪝</span><span><b>Grúas 24/7</b> con tarifas preferenciales</span></li>
+                <li><span class="b">🧑‍🔧</span><span><b>Mecánicos a domicilio</b> en emergencias</span></li>
+              </ul>
+            </label>
           </div>
+        </label>
 
-          <div class="meta"><span class="price" id="d-price">—</span><span class="dot"></span><span id="d-location">—</span></div>
-          <div class="meta"><span class="dot"></span><span id="d-km">—</span></div>
-
-          <div class="list">
-            <button class="list-item proto-disabled"><span>Filtros avanzados</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
-
-            <button class="list-item proto-hot" id="btnHistory">
-              <span class="hot-indicator" aria-hidden="true"></span>
-              <span>Historial del vehículo</span>
-              <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-            </button>
-
-            <button class="list-item proto-disabled"><span>Sello de verificación</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+        <!-- B) Disposición a pagar por Pro -->
+        <label class="q">
+          <span class="q-title">B) ¿Cuál sería tu presupuesto mensual para el plan Pro?</span>
+          <div class="radios pretty-radios">
+            <label><input type="radio" name="pro_price" value="0" required> $0 <span class="muted">(prefiero gratis)</span></label>
+            <label><input type="radio" name="pro_price" value="1-4.99"> $1–4.99 / mes</label>
+            <label><input type="radio" name="pro_price" value="5-9.99"> $5–9.99 / mes</label>
+            <label><input type="radio" name="pro_price" value="10-14.99"> $10–14.99 / mes</label>
+            <label><input type="radio" name="pro_price" value="15+"> $15+ / mes</label>
           </div>
+        </label>
 
-          <button class="cta proto-disabled">Iniciar proceso de compra (Prototipo App)</button>
-        </div>
-      </div>
-      <div class="iphone-homebar"></div>
-    </div>
-  </div><!-- /protoWrap -->
+        <label class="q">
+          <span class="q-title">¿Qué características agregarías?</span>
+          <div class="chips-select">
+            <label><input type="checkbox" name="featuresAdd" value="Alertas de bajada de precio">Alertas de bajada de precio</label>
+            <label><input type="checkbox" name="featuresAdd" value="Favoritos y seguimiento">Favoritos y seguimiento</label>
+            <label><input type="checkbox" name="featuresAdd" value="Chat con vendedores verificados">Chat con vendedores verificados</label>
+            <label><input type="checkbox" name="featuresAdd" value="Filtros avanzados">Filtros avanzados</label>
+          </div>
+          <div style="margin-top:8px">
+            <input type="text" name="features_otros" placeholder="Otras (especifique)">
+          </div>
+        </label>
 
-  <!-- ===== Encuesta ===== -->
-  <aside class="survey-panel is-hidden-mobile" id="survey">
-    <header class="survey-header">
-      <div class="contact-note">
-        📢 <b>Nota:</b> Para quienes van o fueron por un auto importado: si esta app te habría ayudado, ¡dínoslo en la encuesta!
-      </div>
-    </header>
+        <!-- Likerts -->
+        <label class="q">
+          <span class="q-title">¿Qué tan atractivo y memorable te parece el logo? (1 = bajo, 5 = alto)</span>
+          <div class="likert" id="logoScore">
+            <button type="button" data-v="1">1</button>
+            <button type="button" data-v="2">2</button>
+            <button type="button" data-v="3" class="active">3</button>
+            <button type="button" data-v="4">4</button>
+            <button type="button" data-v="5">5</button>
+          </div>
+          <input type="hidden" name="logo" value="3">
+        </label>
 
-    <form id="surveyForm">
-      <label class="q">
-        <span class="q-title">Tu nombre</span>
-        <input type="text" name="nombre" placeholder="Escribe tu nombre" required>
-      </label>
+        <label class="q">
+          <span class="q-title">¿Qué tan fácil se te hizo seguir las instrucciones? (1 = bajo, 5 = alto)</span>
+          <div class="likert" id="easeScore">
+            <button type="button" data-v="1">1</button>
+            <button type="button" data-v="2">2</button>
+            <button type="button" data-v="3" class="active">3</button>
+            <button type="button" data-v="4">4</button>
+            <button type="button" data-v="5">5</button>
+          </div>
+          <input type="hidden" name="ease" value="3">
+        </label>
 
-      <label class="q">
-        <span class="q-title">¿Quién te recomendó esta encuesta?</span>
-        <select name="recomendo" required>
-          <option value="" disabled selected>Selecciona una opción</option>
-          <option>Alvaro Martinez</option>
-          <option>Bryan Bodegas</option>
-          <option>Cristian Alexander Hernandez</option>
-          <option>Cristian Melara</option>
-        </select>
-      </label>
+        <label class="q">
+          <span class="q-title">¿Qué tan útil te parece esta app para <b>seguridad y transparencia</b>? (1 = bajo, 5 = alto)</span>
+          <div class="likert" id="helpScore">
+            <button type="button" data-v="1">1</button>
+            <button type="button" data-v="2">2</button>
+            <button type="button" data-v="3" class="active">3</button>
+            <button type="button" data-v="4">4</button>
+            <button type="button" data-v="5">5</button>
+          </div>
+          <input type="hidden" name="help" value="3">
+        </label>
 
-      <label class="q">
-        <span class="q-title">¿Qué te parece más atractivo de esta visión prototipo de la app?</span>
-        <div class="chips-select">
-          <label><input type="checkbox" name="atractivo" value="Diseño">Diseño/estética</label>
-          <label><input type="checkbox" name="atractivo" value="Seguridad">Verificación y seguridad</label>
-          <label><input type="checkbox" name="atractivo" value="Comparador">Comparador de precios</label>
-          <label><input type="checkbox" name="atractivo" value="Historial">Historial del vehículo</label>
-          <label><input type="checkbox" name="atractivo" value="Facilidad">Facilidad de uso</label>
-        </div>
-      </label>
+        <label class="q">
+          <span class="q-title">¿Tienes alguna sugerencia que debamos tomar en cuenta?</span>
+          <textarea name="sugerencia" rows="3" placeholder="Escribe tu sugerencia…"></textarea>
+        </label>
 
-      <!-- A) Plan -->
-      <label class="q q-planes">
-        <span class="q-title">A) Si tuvieras planes de importar un auto, ¿Qué plan elegirías hoy para Carview?</span>
-        <div class="plan-grid">
-          <label class="plan-card">
-            <input type="radio" name="plan_import" value="free" required>
-            <div class="plan-head">
-              <span class="plan-name">Gratis</span>
-              <span class="pill muted">con anuncios</span>
-            </div>
-            <div class="plan-price">$0</div>
-            <ul class="features">
-              <li><span class="b">📸</span><span>Hasta <b>3 comparaciones IA/día</b> (60–75/mes)</span></li>
-              <li><span class="b">⚠️</span><span><b>Historial ilimitado</b> con detalles básicos</span></li>
-            </ul>
-          </label>
+        <label class="consent">
+          <input type="checkbox" name="consent"> Estoy list@ para enviar mi respuesta
+        </label>
 
-          <label class="plan-card">
-            <input type="radio" name="plan_import" value="plus" required>
-            <div class="plan-head">
-              <span class="plan-name">Plus</span>
-              <span class="pill">Sin anuncios</span>
-            </div>
-            <div class="plan-price">$4.99–$6.99/mes</div>
-            <ul class="features">
-              <li><span class="b">📸</span><span><b>100 comparaciones</b> y <b>guía avanzada</b></span></li>
-              <li><span class="b">🔔</span><span><b>Alertas de precio</b> ilimitadas</span></li>
-              <li><span class="b">📑</span><span><b>Historial detallado</b></span></li>
-              <li><span class="b">⭐</span><span><b>Favoritos</b> básico</span></li>
-              <li><span class="b">🧾</span><span><b>Cupones</b> en talleres aliados</span></li>
-            </ul>
-          </label>
+        <button class="survey-submit" type="submit">Enviar respuestas</button>
+        <p class="legal">*Respuestas con fines académicos y desarrollo de aplicación.</p>
+      </form>
+    </aside>
 
-          <label class="plan-card plan-pro">
-            <input type="radio" name="plan_import" value="pro" required>
-            <div class="plan-head">
-              <span class="plan-name">Pro</span>
-              <span class="pill brand">Sin anuncios · Seguridad extra</span>
-            </div>
-            <div class="plan-price">$9.99–$12.99/mes</div>
-            <div class="plan-sub">TODO LO ANTERIOR Y MÁS:</div>
-            <ul class="features">
-              <li><span class="b">📸</span><span><b>300 comparaciones IA/mes</b></span></li>
-              <li><span class="b">👨‍💼</span><span><b>Asesor humano profesional</b> con ratings</span></li>
-              <li><span class="b">💬</span><span><b>Chat prioritario</b></span></li>
-              <li><span class="b">🔧</span><span><b>Red de Talleres certificados</b> con <b>precios preferenciales</b></span></li>
-              <li><span class="b">🪝</span><span><b>Grúas 24/7</b> con tarifas preferenciales</span></li>
-              <li><span class="b">🧑‍🔧</span><span><b>Mecánicos a domicilio</b> por emergencias</span></li>
-            </ul>
-          </label>
-        </div>
-      </label>
+    <!-- ===== Foro ===== -->
+    <aside class="feed-panel" id="feed">
+      <header class="feed-header">
+        <h3>Foro de respuestas</h3>
+        <p class="muted">Se muestran los envíos del formulario de la derecha.</p>
+      </header>
+      <div class="feed-items" id="feedItems"></div>
+    </aside>
+  </div>
 
-      <!-- B) Precio Pro -->
-      <label class="q">
-        <span class="q-title">B) ¿Cuál sería tu presupuesto mensual para el plan Pro?</span>
-        <div class="radios pretty-radios">
-          <label><input type="radio" name="pro_price" value="0" required> $0 (prefiero gratis con anuncios)</label>
-          <label><input type="radio" name="pro_price" value="1-4.99"> $1–4.99 / mes</label>
-          <label><input type="radio" name="pro_price" value="5-9.99"> $5–9.99 / mes</label>
-          <label><input type="radio" name="pro_price" value="10-14.99"> $10–14.99 / mes</label>
-          <label><input type="radio" name="pro_price" value="15+"> $15+ / mes</label>
-        </div>
-      </label>
-
-      <label class="q">
-        <span class="q-title">¿Qué características agregaría?</span>
-        <div class="chips-select">
-          <label><input type="checkbox" name="featuresAdd" value="Alertas de bajada de precio">Alertas de bajada de precio</label>
-          <label><input type="checkbox" name="featuresAdd" value="Favoritos y seguimiento">Favoritos y seguimiento</label>
-          <label><input type="checkbox" name="featuresAdd" value="Chat con vendedores verificados">Chat con vendedores verificados</label>
-          <label><input type="checkbox" name="featuresAdd" value="Filtros avanzados (por estado, equipamiento, etc.)">Filtros avanzados</label>
-        </div>
-        <div style="margin-top:8px">
-          <input type="text" name="features_otros" placeholder="Otras (especifique)">
-        </div>
-      </label>
-
-      <label class="q">
-        <span class="q-title">¿Qué tan atractivo te parece el logo? (1–5)</span>
-        <div class="likert" id="logoScore">
-          <button type="button" data-v="1">1</button>
-          <button type="button" data-v="2">2</button>
-          <button type="button" data-v="3" class="active">3</button>
-          <button type="button" data-v="4">4</button>
-          <button type="button" data-v="5">5</button>
-        </div>
-        <input type="hidden" name="logo" value="3">
-      </label>
-
-      <label class="q">
-        <span class="q-title">¿Qué tan fácil fueron las instrucciones? (1–5)</span>
-        <div class="likert" id="easeScore">
-          <button type="button" data-v="1">1</button>
-          <button type="button" data-v="2">2</button>
-          <button type="button" data-v="3" class="active">3</button>
-          <button type="button" data-v="4">4</button>
-          <button type="button" data-v="5">5</button>
-        </div>
-        <input type="hidden" name="ease" value="3">
-      </label>
-
-      <label class="q">
-        <span class="q-title">¿Qué tan útil es para <b>seguridad y transparencia</b>? (1–5)</span>
-        <div class="likert" id="helpScore">
-          <button type="button" data-v="1">1</button>
-          <button type="button" data-v="2">2</button>
-          <button type="button" data-v="3" class="active">3</button>
-          <button type="button" data-v="4">4</button>
-          <button type="button" data-v="5">5</button>
-        </div>
-        <input type="hidden" name="help" value="3">
-      </label>
-
-      <label class="q">
-        <span class="q-title">¿Tienes alguna sugerencia?</span>
-        <textarea name="sugerencia" rows="3" placeholder="Escribe tu sugerencia…"></textarea>
-      </label>
-
-      <label class="consent">
-        <input type="checkbox" name="consent"> Estoy list@ para enviar mi respuesta
-      </label>
-
-      <button class="survey-submit" type="submit">Enviar respuestas</button>
-      <p class="legal">*Respuestas con fines académicos y desarrollo de aplicación.</p>
-    </form>
-  </aside>
-
-  <!-- ===== Foro ===== -->
-  <aside class="feed-panel" id="feed">
-    <header class="feed-header">
-      <h3>Foro de respuestas</h3>
-      <p class="muted">Se muestran los envíos del formulario de la derecha.</p>
-    </header>
-    <div class="feed-items" id="feedItems"></div>
-  </aside>
-</div>
-
-<!-- Script ESM para Firebase + app -->
-<script type="module" src="script.js"></script>
+  <!-- Carga TU JavaScript como módulo (una sola vez) -->
+  <script type="module" src="script.js?v=2"></script>
 </body>
 </html>
+
 
