@@ -1,84 +1,43 @@
-// ===============================
-// CarView · script.js (Firebase v12)
-// ===============================
-
-// --- Firebase (CDN ESM) ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, deleteDoc, doc,
-  onSnapshot, serverTimestamp, query, orderBy
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-// 👇 Usa tu config (la que te dio Firebase)
-const firebaseConfig = {
-  apiKey: "AIzaSyAsbtZAiwAS1uDvJfQ9jbJLp2P9Z2LefUc",
-  authDomain: "carview-proto.firebaseapp.com",
-  projectId: "carview-proto",
-  storageBucket: "carview-proto.firebasestorage.app",
-  messagingSenderId: "374557512796",
-  appId: "1:374557512796:web:582e6e72c1db49d9e78299",
-  measurementId: "G-SRVQ66GBEF"
-};
-
-// Init
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-
-// Login anónimo (necesario para reglas de Firestore)
-signInAnonymously(auth).catch(err => console.error("[Auth]", err));
-
-// Evitar doble inicialización si el HTML recarga el módulo dos veces por cache
-if (window.__carviewInit) {
-  // nada
-} else {
+/* script.js — CarView proto (Firebase + UI fixed) */
+document.addEventListener('DOMContentLoaded', () => {
+  // Evitar doble inicialización si el HTML incluye el script dos veces
+  if (window.__carviewInit) return;
   window.__carviewInit = true;
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) return;         // esperamos a estar logueados
-    boot();                    // arranca la app
-  });
-}
-
-// ===============================
-// App
-// ===============================
-function boot(){
+  /* ========= Helpers ========= */
   const $  = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
   const escapeHTML = (s) => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
-  /* ========= Toast ========= */
   function showToast(msg, ms=2200){
     const t = document.createElement('div');
     t.className = 'toast';
     t.textContent = msg;
     document.body.appendChild(t);
-    getComputedStyle(t).opacity; // paint
+    getComputedStyle(t).opacity;
     t.classList.add('show');
     setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(), 250); }, ms);
   }
 
-  /* ========= Flujo móvil: mostrar intro primero ========= */
+  /* ========= Flujo móvil: intro primero ========= */
   if (window.innerWidth <= 980) {
     document.getElementById('intro')?.scrollIntoView({behavior:'auto', block:'start'});
   }
 
   /* ========= Mostrar prototipo al pulsar “Empezar” ========= */
   $('#startProto')?.addEventListener('click', () => {
-    $('#protoWrap')?.classList.remove('is-hidden-mobile');   // mostrar prototipo
-    $('#survey')?.classList.add('is-hidden-mobile');         // mantener encuesta oculta
+    $('#protoWrap')?.classList.remove('is-hidden-mobile');
+    $('#survey')?.classList.add('is-hidden-mobile');
     $('#iphone-home')?.scrollIntoView({ behavior:'smooth', block:'start', inline:'center' });
   });
 
-  /* ========= Botón “Comenzar encuesta” desde el prototipo ========= */
+  /* ========= Botón “Comenzar encuesta” ========= */
   $('#btnStartSurvey')?.addEventListener('click', () => {
     $('#survey')?.classList.remove('is-hidden-mobile');
     $('#survey')?.scrollIntoView({ behavior:'smooth', block:'start' });
   });
 
-  /* ========= Puntos verdes sobre fotos (indicador clic) ========= */
+  /* ========= Puntos verdes sobre fotos (reponer si faltan) ========= */
   $$('.card.js-open-detail .thumb').forEach(t=>{
     if (!t.querySelector('.hot-dot')) {
       const dot = document.createElement('span');
@@ -99,10 +58,9 @@ function boot(){
 
   function hideCoaches(){ ['coach1','coach2'].forEach(id=>{ const el = document.getElementById(id); if(el) el.style.display='none'; }); }
 
-  // Mejora visual del botón “Regresar”: sin duplicados
+  // Botón “Regresar”: añadir label y bolita solo si NO están
   if (backBtn) {
     backBtn.classList.add('proto-hot');
-
     if (!backBtn.querySelector('.hot-indicator')) {
       const dot = document.createElement('span');
       dot.className = 'hot-indicator';
@@ -118,7 +76,6 @@ function boot(){
       label.style.marginLeft = '6px';
       backBtn.appendChild(label);
     }
-
     backBtn.style.width = 'auto';
     backBtn.style.padding = '0 12px 0 10px';
     backBtn.style.display = 'flex';
@@ -147,17 +104,12 @@ function boot(){
 
     detailPhone?.classList.remove('hidden');
     hideCoaches();
-
-    // mover vista al segundo iPhone
     setTimeout(()=>{ detailPhone?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'}); }, 60);
-
-    // quitar puntito verde al visitar
     card.querySelector('.hot-dot')?.remove();
   }
 
   function closeDetail(){
     detailPhone?.classList.add('hidden');
-    // volver visualmente al iPhone 1 (home)
     $('#iphone-home')?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
   }
 
@@ -167,7 +119,10 @@ function boot(){
   /* ========= Botones no implementados → Toast ========= */
   $$('.proto-disabled').forEach(el => el.addEventListener('click', ()=>showToast('Botón no disponible en prototipo de app')));
 
-  /* ========= IA: Comparar (demo) con modo selección ========= */
+  /* ========= Overlays helper ========= */
+  function closeOverlay(ov){ ov.classList.remove('open'); setTimeout(()=>ov.remove(), 200); }
+
+  /* ========= IA: Comparar (demo) ========= */
   const btnCompare   = $('#btnCompare');
   const compareLabel = $('#compareLabel');
   const compareHint  = $('#compareHint');
@@ -207,8 +162,15 @@ function boot(){
     if(!selectionMode){ enterSelectionMode(); return; }
     const selected = getSelectedCars();
     if(selected.length < 2){ showToast('Selecciona al menos 2 autos para comparar.'); return; }
+    const pick = selected.slice(0,2).map(card => ({
+      id: card.dataset.id || '',
+      title: card.dataset.title || card.querySelector('h3')?.textContent || 'Auto',
+      price: card.dataset.price || card.querySelector('.price')?.textContent || '-',
+      km: card.dataset.km || '-',
+      img: (card.querySelector('.thumb img')||{}).src || ''
+    }));
     exitSelectionMode();
-    showToast('Comparación demo generada.');
+    openAIModal(pick[0], pick[1]);
   });
 
   // Evitar burbujeo del checkbox y actualizar contador
@@ -219,16 +181,214 @@ function boot(){
   });
   $$('.car-select').forEach(cb => cb.addEventListener('change', updateCompareUI));
 
-  /* ========= Encuesta + Foro — FIRESTORE REALTIME ========= */
-  const surveyForm   = $('#surveyForm');
-  const feedItems    = $('#feedItems');
+  /* ========= Pista de scroll (btn hint en móviles) ========= */
+  function addScrollHint(container){
+    if(!container || window.innerWidth > 980) return;
+    const need = container.scrollHeight > container.clientHeight + 8;
+    if(!need) return;
 
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label','Desliza hacia abajo');
+    Object.assign(btn.style, {
+      position: 'absolute',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      bottom: '8px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      background: 'rgba(255,255,255,.95)',
+      border: '1px solid #e1e4ea',
+      borderRadius: '999px',
+      padding: '8px 12px',
+      fontWeight: '800',
+      fontSize: '.9rem',
+      color: '#334155',
+      boxShadow: '0 6px 16px rgba(0,0,0,.12)',
+      zIndex: '5',
+    });
+    const chev = document.createElement('span');
+    Object.assign(chev.style, {
+      width:'14px', height:'14px',
+      border: '3px solid currentColor',
+      borderLeftColor: 'transparent',
+      borderTopColor: 'transparent',
+      transform: 'rotate(45deg)',
+      opacity: '.9',
+      display: 'inline-block',
+      marginTop: '2px',
+      animation: 'downNudge 1.2s ease-in-out infinite'
+    });
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+      @keyframes downNudge{
+        0%{ transform:rotate(45deg) translateY(0) }
+        50%{ transform:rotate(45deg) translateY(6px) }
+        100%{ transform:rotate(45deg) translateY(0) }
+      }
+    `;
+    document.head.appendChild(styleTag);
+
+    const text = document.createElement('span');
+    text.textContent = 'Desliza hacia abajo';
+
+    btn.appendChild(chev); btn.appendChild(text);
+    container.appendChild(btn);
+
+    const hide = () => { btn.remove(); container.removeEventListener('scroll', hide); };
+    container.addEventListener('scroll', hide, {passive:true});
+    setTimeout(hide, 6000);
+
+    btn.addEventListener('click', ()=>{
+      container.scrollBy({top: Math.min(240, container.scrollHeight), behavior:'smooth'});
+    });
+  }
+
+  /* ========= Modales (IA, Pro, Historial) ========= */
+  function openAIModal(a, b){
+    function bulletsFor(car){
+      const pros=[], cons=[];
+      if(/Corolla/i.test(car.title)){ pros.push('Alta confiabilidad y buena reventa','Costos de mantenimiento contenidos'); cons.push('Precio de entrada mayor'); }
+      if(/Elantra/i.test(car.title)){ pros.push('Precio más accesible; equipamiento competitivo'); cons.push('Depreciación más pronunciada'); if(/145,?000|145000|km/i.test(car.km)) cons.push('Kilometraje alto detectado (~145,000 km)'); }
+      return {pros, cons};
+    }
+    const A = bulletsFor(a), B = bulletsFor(b);
+    let reco = /Corolla/i.test(a.title) ? a.title : b.title;
+
+    const ov = document.createElement('div');
+    ov.className = 'ov';
+    ov.innerHTML = `
+      <div class="card-lg">
+        <header>
+          <span class="pill">IA (demo)</span>
+          <button class="x" aria-label="Cerrar">✕</button>
+        </header>
+        <h3>Comparación seleccionada</h3>
+        <p class="muted">Generado a partir de los autos marcados en el prototipo.</p>
+
+        <div class="ai-grid">
+          <div class="ai-col">
+            <h4>🚗 ${escapeHTML(a.title)} — <b>${escapeHTML(a.price)}</b></h4>
+            <ul>${A.pros.map(p=>`<li><b>Pro:</b> ${escapeHTML(p)}</li>`).join('')}
+                ${A.cons.map(c=>`<li><b>Con:</b> ${escapeHTML(c)}</li>`).join('')}</ul>
+          </div>
+          <div class="ai-col">
+            <h4>🚗 ${escapeHTML(b.title)} — <b>${escapeHTML(b.price)}</b></h4>
+            <ul>${B.pros.map(p=>`<li><b>Pro:</b> ${escapeHTML(p)}</li>`).join('')}
+                ${B.cons.map(c=>`<li><b>Con:</b> ${escapeHTML(c)}</li>`).join('')}</ul>
+          </div>
+        </div>
+
+        <div class="ai-reco">🔎 <b>Recomendación:</b> <b>${escapeHTML(reco)}</b> se perfila como la opción más segura según este ejemplo.</div>
+
+        <div class="ai-cta-row">
+          <button class="btn pro pulsing proto-hot" id="btnPro">
+            <span class="hot-indicator" aria-hidden="true"></span>
+            Ver detalles de la versión Pro
+          </button>
+          <button class="btn outline" id="btnClose">Cerrar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(ov);
+    requestAnimationFrame(()=>ov.classList.add('open'));
+    addScrollHint(ov.querySelector('.card-lg'));
+
+    ov.addEventListener('click', e => { if(e.target === ov) closeOverlay(ov); });
+    ov.querySelector('.x')?.addEventListener('click', ()=>closeOverlay(ov));
+    ov.querySelector('#btnClose')?.addEventListener('click', ()=>closeOverlay(ov));
+    ov.querySelector('#btnPro')?.addEventListener('click', ()=>{ closeOverlay(ov); openProModal(); });
+  }
+
+  function openProModal(){
+    const ov = document.createElement('div');
+    ov.className = 'ov';
+    ov.innerHTML = `
+      <div class="card-lg">
+        <header>
+          <span class="pill">Versión Pro (demo)</span>
+          <button class="x" aria-label="Cerrar">✕</button>
+        </header>
+        <h3>Suscripción mensual Pro – Asesoría y red de servicios</h3>
+        <p class="muted">Ejemplo de beneficios al lanzar la app.</p>
+        <ul>
+          <li>📍 <b>Network</b> de profesionales verificados (cercanía + rating).</li>
+          <li>👨‍💼 <b>Asesor experto humano</b> para compra y <b>trámites</b>.</li>
+          <li>🔧 <b>Talleres aliados</b> y precios preferenciales.</li>
+          <li>🪝 <b>Grúas 24/7</b> y atención prioritaria.</li>
+        </ul>
+        <div class="ai-reco">💡 Precio de ejemplo: <b>$9.99/mes</b>.</div>
+        <div class="ai-cta-row">
+          <button class="btn brand" id="btnStartPro">Probar Pro (demo)</button>
+          <button class="btn outline" id="btnClosePro">Cerrar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(ov);
+    requestAnimationFrame(()=>ov.classList.add('open'));
+    addScrollHint(ov.querySelector('.card-lg'));
+    ov.addEventListener('click', e => { if(e.target === ov) closeOverlay(ov); });
+    ov.querySelector('.x')?.addEventListener('click', ()=>closeOverlay(ov));
+    ov.querySelector('#btnClosePro')?.addEventListener('click', ()=>closeOverlay(ov));
+    ov.querySelector('#btnStartPro')?.addEventListener('click', ()=>showToast('Alta Pro (prototipo)…'));
+  }
+
+  $('#btnHistory')?.addEventListener('click', openHistoryModal);
+  function openHistoryModal(){
+    const title = $('#d-title')?.textContent || 'Vehículo';
+    const km    = $('#d-km')?.textContent || '—';
+    const ov = document.createElement('div');
+    ov.className = 'ov';
+    ov.innerHTML = `
+      <div class="card-lg">
+        <header>
+          <span class="pill">Historial (demo)</span>
+          <button class="x" aria-label="Cerrar">✕</button>
+        </header>
+        <h3>${escapeHTML(title)} — Historial resumido</h3>
+        <p class="muted">Kilometraje reportado: <b>${escapeHTML(km)}</b></p>
+        <div class="ai-grid">
+          <div class="ai-col">
+            <h4>🧾 Resumen</h4>
+            <ul>
+              <li>Dueños registrados: <b>2</b></li>
+              <li>Estado legal: <b>sin reporte de robo</b></li>
+              <li>Uso anterior: <b>particular</b></li>
+              <li>ITV/inspecciones: <b>al día</b></li>
+            </ul>
+          </div>
+          <div class="ai-col">
+            <h4>🛠️ Mantenimientos</h4>
+            <ul>
+              <li>2023-09: Cambio de frenos y balanceo</li>
+              <li>2022-12: Cambio de batería</li>
+              <li>2022-06: Servicio mayor</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ai-cta-row">
+          <button class="btn brand" id="btnHistoryClose">Cerrar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(ov);
+    requestAnimationFrame(()=>ov.classList.add('open'));
+    addScrollHint(ov.querySelector('.card-lg'));
+    ov.addEventListener('click', e => { if(e.target === ov) closeOverlay(ov); });
+    ov.querySelector('.x')?.addEventListener('click', ()=>closeOverlay(ov));
+    ov.querySelector('#btnHistoryClose')?.addEventListener('click', ()=>closeOverlay(ov));
+  }
+
+  /* ========= Encuesta + Foro (Firestore tiempo real) ========= */
+  const surveyForm   = $('#surveyForm');
   const likertLogo   = $('#logoScore');
   const logoHidden   = surveyForm?.elements['logo'];
   const likertEase   = $('#easeScore');
   const easeHidden   = surveyForm?.elements['ease'];
-  const helpScoreEl  = $('#helpScore');
+  const help         = $('#helpScore');
   const helpHidden   = surveyForm?.elements['help'];
+  const feedItems    = $('#feedItems');
 
   function bindLikert(container, hiddenInput){
     container?.addEventListener('click', e=>{
@@ -240,126 +400,151 @@ function boot(){
   }
   bindLikert(likertLogo, logoHidden);
   bindLikert(likertEase, easeHidden);
-  bindLikert(helpScoreEl, helpHidden);
+  bindLikert(help, helpHidden);
 
-  const postsCol   = collection(db, 'posts');
-  const postsQuery = query(postsCol, orderBy('createdAt','desc'));
+  // ===== Firebase (dinámico, no necesita type="module" en HTML) =====
+  let db = null;
+  let fsCollection = null;
+  let onSnapshotUnsub = null;
 
-  // Render helpers
-  const createPostEl = (d) => {
+  (async function initFirebase(){
+    try{
+      const [{ initializeApp }, { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, orderBy, query, deleteDoc, doc, enableIndexedDbPersistence }]
+        = await Promise.all([
+          import('https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js'),
+          import('https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js')
+        ]);
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAsbtZAiwAS1uDvJfQ9jbJLp2P9Z2LefUc",
+        authDomain: "carview-proto.firebaseapp.com",
+        projectId: "carview-proto",
+        storageBucket: "carview-proto.firebasestorage.app",
+        messagingSenderId: "374557512796",
+        appId: "1:374557512796:web:582e6e72c1db49d9e78299",
+        measurementId: "G-SRVQ66GBEF"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      // Cache offline opcional
+      try { await enableIndexedDbPersistence(db); } catch {}
+
+      // Colección
+      fsCollection = (...path)=>collection(db, ...path);
+
+      // Live feed
+      const q = query(fsCollection('surveys'), orderBy('createdAt','desc'));
+      onSnapshotUnsub = onSnapshot(q, (snap)=>{
+        if (!feedItems) return;
+        feedItems.innerHTML = '';
+        snap.forEach(d=>{
+          const data = d.data() || {};
+          const el = createPostEl({ id: d.id, ...data });
+          feedItems.appendChild(el);
+        });
+      });
+
+      // submit → addDoc
+      surveyForm?.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        if (!surveyForm.reportValidity()) return;
+
+        const nombre      = surveyForm.elements['nombre'].value.trim();
+        const recomendo   = surveyForm.elements['recomendo'].value;
+        const atractivos  = [...surveyForm.querySelectorAll('input[name="atractivo"]:checked')].map(i=>i.value);
+        const plan        = (surveyForm.elements['plan_import']?.value) || '';
+        const premium     = (surveyForm.elements['pro_price']?.value) || (surveyForm.elements['premium']?.value) || '';
+        const featuresAdd = [...surveyForm.querySelectorAll('input[name="featuresAdd"]:checked')].map(i=>i.value);
+        const featuresExt = surveyForm.elements['features_otros'].value.trim();
+        const logo        = surveyForm.elements['logo'].value;
+        const easeScore   = surveyForm.elements['ease'].value;
+        const helpScore   = surveyForm.elements['help'].value;
+        const sugerencia  = surveyForm.elements['sugerencia'].value.trim();
+
+        if(!nombre){ showToast('Escribe tu nombre para participar.'); return; }
+        if(!recomendo){ showToast('Selecciona quién te recomendó la encuesta.'); return; }
+        if(atractivos.length===0){ showToast('Selecciona al menos un aspecto atractivo.'); return; }
+        if(!surveyForm.elements['consent'].checked){ showToast('Debes aceptar participar para enviar.'); return; }
+
+        try{
+          await addDoc(fsCollection('surveys'), {
+            nombre, recomendo, atractivos, plan, premium,
+            featuresAdd, featuresExt, logo,
+            ease: easeScore, help: helpScore, sugerencia,
+            createdAt: serverTimestamp()
+          });
+          showToast('¡Gracias por su ayuda!');
+          // Reset visual
+          surveyForm.reset();
+          if(logoHidden) logoHidden.value = '3';
+          likertLogo?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+          if(easeHidden) easeHidden.value = '3';
+          likertEase?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+          if(helpHidden) helpHidden.value = '3';
+          help?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
+        }catch(err){
+          console.error(err);
+          showToast('No se pudo enviar. Revisa tu conexión.');
+        }
+      });
+
+      // Delegación: eliminar post en Firestore
+      feedItems?.addEventListener('click', async (e)=>{
+        const del = e.target.closest('.post-delete');
+        if (!del) return;
+        const card = del.closest('.post');
+        const id = card?.dataset.id;
+        if (!id) return;
+        try{
+          await deleteDoc(doc(db, 'surveys', id));
+          showToast('Encuesta eliminada.');
+        }catch(err){
+          console.error(err);
+          showToast('No se pudo eliminar.');
+        }
+      });
+
+    }catch(err){
+      console.error('Firebase no pudo iniciar:', err);
+      showToast('Error conectando con la base de datos.');
+      // Aun así deja usable el prototipo (UI, modales, etc.)
+    }
+  })();
+
+  // Render tarjeta (común a Firestore)
+  function createPostEl(d){
     const div = document.createElement('div');
     div.className = 'post';
-    div.dataset.id = d.id;
+    div.dataset.id = d.id || '';
     div.innerHTML = `
       <div class="post-head">
         <div>
-          <span class="name">Usuario ${escapeHTML(d.nombre)}</span>
+          <span class="name">Usuario ${escapeHTML(d.nombre || '—')}</span>
           <span class="tag">ha subido la encuesta</span>
         </div>
         <button class="post-delete" aria-label="Eliminar encuesta">Eliminar</button>
       </div>
       <div class="post-body">
-        <div>🎓 <b>Estudiante que te compartió la encuesta:</b> ${escapeHTML(d.recomendo)}</div>
+        <div>🎓 <b>Estudiante que te compartió la encuesta:</b> ${escapeHTML(d.recomendo || '—')}</div>
         <div>📢 <b>Contacto:</b> No es necesario (proyecto universitario).</div>
-        <div>⭐ <b>Atractivo(s):</b> ${d.atractivos?.length ? d.atractivos.map(escapeHTML).join(', ') : '—'}</div>
+        <div>⭐ <b>Atractivo(s):</b> ${Array.isArray(d.atractivos)&&d.atractivos.length ? d.atractivos.map(escapeHTML).join(', ') : '—'}</div>
         ${ d.plan ? `<div>📦 <b>Plan elegido:</b> ${escapeHTML(d.plan)}</div>` : '' }
         <div>💎 <b>Presupuesto Pro (mensual):</b> ${escapeHTML(d.premium || '—')}</div>
         <div>🧩 <b>Características que agregaría:</b>
-          ${ (d.featuresAdd && d.featuresAdd.length) ? escapeHTML(d.featuresAdd.join(', ')) : '—' }
+          ${ Array.isArray(d.featuresAdd)&&d.featuresAdd.length ? escapeHTML(d.featuresAdd.join(', ')) : '—' }
           ${ d.featuresExt ? `<br><b>Otras:</b> ${escapeHTML(d.featuresExt)}` : '' }
         </div>
-        <div>🏁 <b>Valoración del logo:</b> ${escapeHTML(d.logo)}/5</div>
-        <div>🧭 <b>Facilidad de seguir instrucciones:</b> ${escapeHTML(d.ease)}/5</div>
-        <div>🛡️ <b>Utilidad como guía (seguridad/transparencia):</b> ${escapeHTML(d.help)}/5</div>
+        <div>🏁 <b>Valoración del logo:</b> ${escapeHTML(d.logo || '—')}/5</div>
+        <div>🧭 <b>Facilidad de seguir instrucciones:</b> ${escapeHTML(d.ease || '—')}/5</div>
+        <div>🛡️ <b>Utilidad como guía:</b> ${escapeHTML(d.help || '—')}/5</div>
         ${ d.sugerencia ? `<div>📝 <b>Sugerencia:</b> ${escapeHTML(d.sugerencia)}</div>` : '' }
       </div>
     `;
     return div;
-  };
-
-  const renderPosts = (arr) => {
-    if (!feedItems) return;
-    feedItems.innerHTML = '';
-    arr.forEach(p => feedItems.appendChild(createPostEl(p)));
-  };
-
-  // 🔔 Suscripción en tiempo real
-  onSnapshot(
-    postsQuery,
-    (snap) => {
-      const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderPosts(posts);
-    },
-    (err) => {
-      console.error('[onSnapshot] Error:', err);
-      showToast('No se pudo leer datos (revisa reglas de Firestore).');
-    }
-  );
-
-  // Crear encuesta
-  async function savePost(d){
-    await addDoc(postsCol, { ...d, createdAt: serverTimestamp() });
   }
 
-  // Enviar formulario
-  surveyForm?.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-
-    const nombre      = surveyForm.elements['nombre'].value.trim();
-    const recomendo   = surveyForm.elements['recomendo'].value;
-    const atractivos  = [...surveyForm.querySelectorAll('input[name="atractivo"]:checked')].map(i=>i.value);
-
-    const plan        = (surveyForm.elements['plan_import']?.value) || '';
-    const premium     = (surveyForm.elements['pro_price']?.value) || '';
-
-    const featuresAdd = [...surveyForm.querySelectorAll('input[name="featuresAdd"]:checked')].map(i=>i.value);
-    const featuresExt = surveyForm.elements['features_otros'].value.trim();
-    const logo        = surveyForm.elements['logo'].value;
-    const easeScore   = surveyForm.elements['ease'].value;
-    const helpScore   = surveyForm.elements['help'].value;
-    const sugerencia  = surveyForm.elements['sugerencia'].value.trim();
-
-    if(!nombre){ showToast('Escribe tu nombre para participar.'); return; }
-    if(!recomendo){ showToast('Selecciona quién te recomendó la encuesta.'); return; }
-    if(atractivos.length===0){ showToast('Selecciona al menos un aspecto atractivo.'); return; }
-    if(!surveyForm.elements['consent'].checked){ showToast('Debes aceptar participar para enviar.'); return; }
-
-    try{
-      await savePost({ nombre, recomendo, atractivos, plan, premium, featuresAdd, featuresExt, logo, ease: easeScore, help: helpScore, sugerencia });
-      showToast('¡Gracias por su ayuda!');
-    }catch(err){
-      console.error('[addDoc] Error:', err);
-      showToast('No se pudo guardar (revisa Auth/Reglas).');
-      return;
-    }
-
-    // Reset visual (dejamos valores por defecto en likerts)
-    surveyForm.reset();
-    surveyForm.elements['logo'].value = '3';
-    likertLogo?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
-    surveyForm.elements['ease'].value = '3';
-    likertEase?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
-    surveyForm.elements['help'].value = '3';
-    helpScoreEl?.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.v==='3'));
-  });
-
-  // Eliminar encuesta (delegación)
-  feedItems?.addEventListener('click', async (e) => {
-    const del = e.target.closest('.post-delete');
-    if (!del) return;
-    const card = del.closest('.post');
-    const id = card?.dataset.id;
-    if (!id) return;
-    try{
-      await deleteDoc(doc(db, 'posts', id));
-      showToast('Encuesta eliminada.');
-    }catch(err){
-      console.error('[deleteDoc] Error:', err);
-      showToast('No se pudo eliminar (revisa reglas).');
-    }
-  });
-
-  /* ========= Asegurar bolita verde pulsante en “Comenzar encuesta” ========= */
+  /* ========= Bolita verde en “Comenzar encuesta” ========= */
   (function ensureStartSurveyDot(){
     const b = document.getElementById('btnStartSurvey');
     if (b && !b.querySelector('.hot-indicator')) {
@@ -369,5 +554,4 @@ function boot(){
       b.appendChild(dot);
     }
   })();
-}
-
+});
