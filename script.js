@@ -1,3 +1,38 @@
+// Firebase v12: App + Auth + Firestore (CDN ESM)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, deleteDoc, doc,
+  onSnapshot, serverTimestamp, query, orderBy
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+// ⬇️ tu config
+const firebaseConfig = {
+  apiKey: "AIzaSyAsbtZAiwAS1uDvJfQ9jbJLp2P9Z2LefUc",
+  authDomain: "carview-proto.firebaseapp.com",
+  projectId: "carview-proto",
+  storageBucket: "carview-proto.firebasestorage.app",
+  messagingSenderId: "374557512796",
+  appId: "1:374557512796:web:582e6e72c1db49d9e78299",
+  measurementId: "G-SRVQ66GBEF"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// login anónimo (necesario para las reglas)
+signInAnonymously(auth).catch(err => console.error("[Auth]", err));
+
+// cuando estemos logueados, arranca el resto de tu app (lo que ya te pasé)
+onAuthStateChanged(auth, user => {
+  if (!user) return;
+  // …aquí sigue tu código existente que:
+  // - hace onSnapshot(query(collection(db,'posts'), orderBy('createdAt','desc')))
+  // - usa addDoc/deleteDoc para crear/eliminar encuestas
+});
+
+
 /* =========================
    Firebase (ESM desde CDN)
    ========================= */
