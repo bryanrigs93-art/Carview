@@ -597,3 +597,17 @@ async function loadSurveyData() {
 
 // Cargar datos al abrir el dashboard
 document.getElementById('dashboard').addEventListener('DOMNodeInserted', loadSurveyData);
+function renderGeoChart() {
+  const ctx = document.getElementById('geo-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Norte', 'Sur', 'Este', 'Oeste'],
+      datasets: [{
+        label: 'Satisfacción',
+        data: [88, 75, 92, 65],
+        backgroundColor: 'var(--accent)'
+      }]
+    }
+  });
+}
